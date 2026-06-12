@@ -532,9 +532,9 @@ function renderMatches(isResults=false) {
           <div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:8px">🇲🇽 Marcador exacto real:</div>
           <div style="display:flex;align-items:center;gap:10px;">
             <span style="font-size:13px">${m.home.f} ${m.home.n}</span>
-            <input type="number" min="0" max="20" value="${mxH??''}" placeholder="0" class="score-input" onchange="setRealMxScore(${m.id},'home',this.value)">
+            <input type="number" min="0" max="20" value="${mxH??''}" placeholder="0" class="score-input" oninput="setRealMxScore(${m.id},'home',this.value)">
             <span style="color:var(--muted)">–</span>
-            <input type="number" min="0" max="20" value="${mxA??''}" placeholder="0" class="score-input" onchange="setRealMxScore(${m.id},'away',this.value)">
+            <input type="number" min="0" max="20" value="${mxA??''}" placeholder="0" class="score-input" oninput="setRealMxScore(${m.id},'away',this.value)">
             <span style="font-size:13px">${m.away.f} ${m.away.n}</span>
           </div>
         </div>` : ""}`;
@@ -557,9 +557,9 @@ function renderMatches(isResults=false) {
           <div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:8px">🇲🇽 ¡Predice el marcador exacto! <span style="color:var(--muted)">(+5 exacto / +2 goles del Tri)</span></div>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
             <span style="font-size:13px">${m.home.f} ${m.home.n}</span>
-            <input type="number" min="0" max="20" value="${myMxHome??''}" placeholder="0" class="score-input" onchange="setMxPick(${m.id},'home',this.value)">
+            <input type="number" min="0" max="20" value="${myMxHome??''}" placeholder="0" class="score-input" oninput="setMxPick(${m.id},'home',this.value)">
             <span style="color:var(--muted);font-weight:700">–</span>
-            <input type="number" min="0" max="20" value="${myMxAway??''}" placeholder="0" class="score-input" onchange="setMxPick(${m.id},'away',this.value)">
+            <input type="number" min="0" max="20" value="${myMxAway??''}" placeholder="0" class="score-input" oninput="setMxPick(${m.id},'away',this.value)">
             <span style="font-size:13px">${m.away.f} ${m.away.n}</span>
           </div>
         </div>`;
