@@ -845,7 +845,7 @@ function renderStats() {
     if (!picks.length) return {p,pct:0,correct:0,total:0};
     const correct = picks.filter(m => allPredictions[p.uid].matches[`m${m.id}`]===realResults[`m${m.id}`]).length;
     return {p,pct:Math.round(correct/picks.length*100),correct,total:picks.length};
-  }).sort((a,b)=>b.pct-a.pct)[0];
+  }).sort((a,b)=>b.correct-a.correct || b.pct-a.pct)[0];
   // Valiente
   const valiente = profiles.map(p => {
     let cnt=0; resolved.forEach(m=>{if(allPredictions[p.uid]?.matches?.[`m${m.id}`]==="away")cnt++;});
@@ -864,7 +864,7 @@ function renderStats() {
   }).sort((a,b)=>b.crazy-a.crazy)[0];
 
   const cards=[
-    {cls:"gold",icon:"🔮",title:"La Adivina",player:adivina?.p?.name||"–",val:`${adivina?.pct||0}% de aciertos`,emoji:adivina?.p?.emoji||""},
+    {cls:"gold",icon:"🔮",title:"La Adivina",player:adivina?.p?.name||"–",val:`${adivina?.correct||0}/${adivina?.total||0} aciertos (${adivina?.pct||0}%)`,emoji:adivina?.p?.emoji||""},
     {cls:"cyan",icon:"🦁",title:"La Valiente",player:valiente?.p?.name||"–",val:`${valiente?.cnt||0} picks visitante`,emoji:valiente?.p?.emoji||""},
     {cls:"purple",icon:"🎲",title:"La Loca",player:loca?.p?.name||"–",val:`${loca?.crazy||0} picks únicos`,emoji:loca?.p?.emoji||""},
   ];
