@@ -67,108 +67,81 @@ const GROUPS = {
   K:{teams:[{n:"Portugal",f:"🇵🇹"},{n:"Colombia",f:"🇨🇴"},{n:"Uzbekistán",f:"🇺🇿"},{n:"R.D. del Congo",f:"🇨🇩"}]},
   L:{teams:[{n:"Inglaterra",f:"🏴󠁧󠁢󠁥󠁮󠁧󠁿"},{n:"Croacia",f:"🇭🇷"},{n:"Ghana",f:"🇬🇭"},{n:"Panamá",f:"🇵🇦"}]}
 };
-const JORNADAS={A:["11 Jun","18 Jun","24 Jun"],B:["12 Jun","19 Jun","25 Jun"],C:["13 Jun","20 Jun","26 Jun"],D:["12 Jun","19 Jun","25 Jun"],E:["14 Jun","21 Jun","26 Jun"],F:["13 Jun","20 Jun","26 Jun"],G:["15 Jun","22 Jun","27 Jun"],H:["14 Jun","21 Jun","27 Jun"],I:["16 Jun","23 Jun","27 Jun"],J:["15 Jun","22 Jun","27 Jun"],K:["17 Jun","24 Jun","27 Jun"],L:["16 Jun","23 Jun","27 Jun"]};
-// Match times CDMX - official fixture
-const MATCH_TIMES = {
-  // Group A
-  "México_Sudáfrica":"13:00",
-  "Corea del Sur_Rep. Checa":"20:00",
-  "México_Corea del Sur":"19:00",
-  "Sudáfrica_Rep. Checa":"10:00",
-  "Rep. Checa_México":"19:00",
-  "Sudáfrica_Corea del Sur":"19:00",
-  // Group B
-  "Canadá_Bosnia-Herzegovina":"13:00",
-  "Qatar_Suiza":"20:00",
-  "Canadá_Qatar":"16:00",
-  "Bosnia-Herzegovina_Suiza":"13:00",
-  "Suiza_Canadá":"15:00",
-  "Bosnia-Herzegovina_Qatar":"15:00",
-  // Group C
-  "Brasil_Haití":"19:00",
-  "Escocia_Marruecos":"16:00",
-  "Brasil_Escocia":"13:00",
-  "Marruecos_Haití":"16:00",
-  "Haití_Escocia":"18:00",
-  "Marruecos_Brasil":"18:00",
-  // Group D
-  "EE.UU._Paraguay":"19:00",
-  "Australia_Turquía":"16:00",
-  "EE.UU._Australia":"13:00",
-  "Paraguay_Turquía":"20:00",
-  "Turquía_EE.UU.":"18:00",
-  "Paraguay_Australia":"18:00",
-  // Group E
-  "Alemania_Ecuador":"13:00",
-  "Costa de Marfil_Curazao":"20:00",
-  "Alemania_Costa de Marfil":"16:00",
-  "Ecuador_Curazao":"13:00",
-  "Curazao_Alemania":"18:00",
-  "Ecuador_Costa de Marfil":"18:00",
-  // Group F
-  "Países Bajos_Suecia":"16:00",
-  "Japón_Túnez":"13:00",
-  "Países Bajos_Japón":"19:00",
-  "Túnez_Suecia":"16:00",
-  "Suecia_Países Bajos":"18:00",
-  "Túnez_Japón":"18:00",
-  // Group G
-  "Bélgica_Nueva Zelanda":"13:00",
-  "Irán_Egipto":"20:00",
-  "Bélgica_Irán":"13:00",
-  "Egipto_Nueva Zelanda":"20:00",
-  "Nueva Zelanda_Irán":"18:00",
-  "Egipto_Bélgica":"18:00",
-  // Group H
-  "España_Cabo Verde":"16:00",
-  "Uruguay_Arabia Saudí":"13:00",
-  "España_Uruguay":"19:00",
-  "Arabia Saudí_Cabo Verde":"16:00",
-  "Cabo Verde_Uruguay":"18:00",
-  "Arabia Saudí_España":"18:00",
-  // Group I
-  "Francia_Irak":"19:00",
-  "Senegal_Noruega":"16:00",
-  "Francia_Senegal":"13:00",
-  "Noruega_Irak":"20:00",
-  "Irak_Francia":"18:00",
-  "Noruega_Senegal":"18:00",
-  // Group J
-  "Argentina_Jordania":"22:00",
-  "Austria_Argelia":"19:00",
-  "Argentina_Austria":"19:00",
-  "Argelia_Jordania":"16:00",
-  "Jordania_Austria":"18:00",
-  "Argelia_Argentina":"18:00",
-  // Group K
-  "Portugal_R.D. del Congo":"19:00",
-  "Uzbekistán_Colombia":"20:00",
-  "Portugal_Uzbekistán":"13:00",
-  "Colombia_R.D. del Congo":"17:00",
-  "R.D. del Congo_Uzbekistán":"18:00",
-  "Colombia_Portugal":"18:00",
-  // Group L
-  "Inglaterra_Panamá":"19:00",
-  "Ghana_Croacia":"16:00",
-  "Inglaterra_Ghana":"13:00",
-  "Croacia_Panamá":"16:00",
-  "Panamá_Ghana":"18:00",
-  "Croacia_Inglaterra":"18:00",
-};
-function getMatchTime(home, away) {
-  return MATCH_TIMES[home+"_"+away] || MATCH_TIMES[away+"_"+home] || "TBD";
-}
+const MATCHES = [
+  {id:1,group:'A',jornada:1,date:'11 Jun',time:'14:00',home:{n:'México',f:'🇲🇽'},away:{n:'Sudáfrica',f:'🇿🇦'}},
+  {id:2,group:'A',jornada:1,date:'11 Jun',time:'21:00',home:{n:'Corea del Sur',f:'🇰🇷'},away:{n:'Rep. Checa',f:'🇨🇿'}},
+  {id:3,group:'A',jornada:2,date:'18 Jun',time:'11:00',home:{n:'Rep. Checa',f:'🇨🇿'},away:{n:'Sudáfrica',f:'🇿🇦'}},
+  {id:4,group:'A',jornada:2,date:'18 Jun',time:'20:00',home:{n:'México',f:'🇲🇽'},away:{n:'Corea del Sur',f:'🇰🇷'}},
+  {id:5,group:'A',jornada:3,date:'24 Jun',time:'20:00',home:{n:'Rep. Checa',f:'🇨🇿'},away:{n:'México',f:'🇲🇽'}},
+  {id:6,group:'A',jornada:3,date:'24 Jun',time:'20:00',home:{n:'Sudáfrica',f:'🇿🇦'},away:{n:'Corea del Sur',f:'🇰🇷'}},
+  {id:7,group:'B',jornada:1,date:'12 Jun',time:'14:00',home:{n:'Canadá',f:'🇨🇦'},away:{n:'Bosnia-Herzegovina',f:'🇧🇦'}},
+  {id:8,group:'B',jornada:1,date:'13 Jun',time:'14:00',home:{n:'Qatar',f:'🇶🇦'},away:{n:'Suiza',f:'🇨🇭'}},
+  {id:9,group:'B',jornada:2,date:'18 Jun',time:'14:00',home:{n:'Suiza',f:'🇨🇭'},away:{n:'Bosnia-Herzegovina',f:'🇧🇦'}},
+  {id:10,group:'B',jornada:2,date:'18 Jun',time:'17:00',home:{n:'Canadá',f:'🇨🇦'},away:{n:'Qatar',f:'🇶🇦'}},
+  {id:11,group:'B',jornada:3,date:'24 Jun',time:'14:00',home:{n:'Suiza',f:'🇨🇭'},away:{n:'Canadá',f:'🇨🇦'}},
+  {id:12,group:'B',jornada:3,date:'24 Jun',time:'14:00',home:{n:'Bosnia-Herzegovina',f:'🇧🇦'},away:{n:'Qatar',f:'🇶🇦'}},
+  {id:13,group:'C',jornada:1,date:'13 Jun',time:'17:00',home:{n:'Brasil',f:'🇧🇷'},away:{n:'Marruecos',f:'🇲🇦'}},
+  {id:14,group:'C',jornada:1,date:'13 Jun',time:'20:00',home:{n:'Haití',f:'🇭🇹'},away:{n:'Escocia',f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿'}},
+  {id:15,group:'C',jornada:2,date:'19 Jun',time:'17:00',home:{n:'Brasil',f:'🇧🇷'},away:{n:'Haití',f:'🇭🇹'}},
+  {id:16,group:'C',jornada:2,date:'19 Jun',time:'20:00',home:{n:'Escocia',f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿'},away:{n:'Marruecos',f:'🇲🇦'}},
+  {id:17,group:'C',jornada:3,date:'24 Jun',time:'17:00',home:{n:'Escocia',f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿'},away:{n:'Brasil',f:'🇧🇷'}},
+  {id:18,group:'C',jornada:3,date:'24 Jun',time:'17:00',home:{n:'Marruecos',f:'🇲🇦'},away:{n:'Haití',f:'🇭🇹'}},
+  {id:19,group:'D',jornada:1,date:'12 Jun',time:'20:00',home:{n:'EE.UU.',f:'🇺🇸'},away:{n:'Paraguay',f:'🇵🇾'}},
+  {id:20,group:'D',jornada:1,date:'12 Jun',time:'23:00',home:{n:'Australia',f:'🇦🇺'},away:{n:'Turquía',f:'🇹🇷'}},
+  {id:21,group:'D',jornada:2,date:'18 Jun',time:'23:00',home:{n:'Turquía',f:'🇹🇷'},away:{n:'Paraguay',f:'🇵🇾'}},
+  {id:22,group:'D',jornada:2,date:'19 Jun',time:'14:00',home:{n:'EE.UU.',f:'🇺🇸'},away:{n:'Australia',f:'🇦🇺'}},
+  {id:23,group:'D',jornada:3,date:'25 Jun',time:'21:00',home:{n:'Turquía',f:'🇹🇷'},away:{n:'EE.UU.',f:'🇺🇸'}},
+  {id:24,group:'D',jornada:3,date:'25 Jun',time:'21:00',home:{n:'Paraguay',f:'🇵🇾'},away:{n:'Australia',f:'🇦🇺'}},
+  {id:25,group:'E',jornada:1,date:'14 Jun',time:'12:00',home:{n:'Alemania',f:'🇩🇪'},away:{n:'Curazao',f:'🇨🇼'}},
+  {id:26,group:'E',jornada:1,date:'14 Jun',time:'18:00',home:{n:'Costa de Marfil',f:'🇨🇮'},away:{n:'Ecuador',f:'🇪🇨'}},
+  {id:27,group:'E',jornada:2,date:'20 Jun',time:'17:00',home:{n:'Alemania',f:'🇩🇪'},away:{n:'Costa de Marfil',f:'🇨🇮'}},
+  {id:28,group:'E',jornada:2,date:'20 Jun',time:'19:00',home:{n:'Ecuador',f:'🇪🇨'},away:{n:'Curazao',f:'🇨🇼'}},
+  {id:29,group:'E',jornada:3,date:'25 Jun',time:'17:00',home:{n:'Ecuador',f:'🇪🇨'},away:{n:'Alemania',f:'🇩🇪'}},
+  {id:30,group:'E',jornada:3,date:'25 Jun',time:'17:00',home:{n:'Curazao',f:'🇨🇼'},away:{n:'Costa de Marfil',f:'🇨🇮'}},
+  {id:31,group:'F',jornada:1,date:'14 Jun',time:'17:00',home:{n:'Países Bajos',f:'🇳🇱'},away:{n:'Japón',f:'🇯🇵'}},
+  {id:32,group:'F',jornada:1,date:'14 Jun',time:'21:00',home:{n:'Suecia',f:'🇸🇪'},away:{n:'Túnez',f:'🇹🇳'}},
+  {id:33,group:'F',jornada:2,date:'20 Jun',time:'12:00',home:{n:'Países Bajos',f:'🇳🇱'},away:{n:'Suecia',f:'🇸🇪'}},
+  {id:34,group:'F',jornada:2,date:'19 Jun',time:'23:00',home:{n:'Túnez',f:'🇹🇳'},away:{n:'Japón',f:'🇯🇵'}},
+  {id:35,group:'F',jornada:3,date:'25 Jun',time:'18:00',home:{n:'Túnez',f:'🇹🇳'},away:{n:'Países Bajos',f:'🇳🇱'}},
+  {id:36,group:'F',jornada:3,date:'25 Jun',time:'18:00',home:{n:'Japón',f:'🇯🇵'},away:{n:'Suecia',f:'🇸🇪'}},
+  {id:37,group:'G',jornada:1,date:'15 Jun',time:'14:00',home:{n:'Bélgica',f:'🇧🇪'},away:{n:'Egipto',f:'🇪🇬'}},
+  {id:38,group:'G',jornada:1,date:'15 Jun',time:'20:00',home:{n:'Irán',f:'🇮🇷'},away:{n:'Nueva Zelanda',f:'🇳🇿'}},
+  {id:39,group:'G',jornada:2,date:'21 Jun',time:'18:00',home:{n:'Bélgica',f:'🇧🇪'},away:{n:'Irán',f:'🇮🇷'}},
+  {id:40,group:'G',jornada:2,date:'21 Jun',time:'20:00',home:{n:'Nueva Zelanda',f:'🇳🇿'},away:{n:'Egipto',f:'🇪🇬'}},
+  {id:41,group:'G',jornada:3,date:'26 Jun',time:'22:00',home:{n:'Nueva Zelanda',f:'🇳🇿'},away:{n:'Bélgica',f:'🇧🇪'}},
+  {id:42,group:'G',jornada:3,date:'26 Jun',time:'22:00',home:{n:'Egipto',f:'🇪🇬'},away:{n:'Irán',f:'🇮🇷'}},
+  {id:43,group:'H',jornada:1,date:'15 Jun',time:'11:00',home:{n:'España',f:'🇪🇸'},away:{n:'Cabo Verde',f:'🇨🇻'}},
+  {id:44,group:'H',jornada:1,date:'15 Jun',time:'17:00',home:{n:'Arabia Saudí',f:'🇸🇦'},away:{n:'Uruguay',f:'🇺🇾'}},
+  {id:45,group:'H',jornada:2,date:'21 Jun',time:'11:00',home:{n:'España',f:'🇪🇸'},away:{n:'Arabia Saudí',f:'🇸🇦'}},
+  {id:46,group:'H',jornada:2,date:'21 Jun',time:'17:00',home:{n:'Uruguay',f:'🇺🇾'},away:{n:'Cabo Verde',f:'🇨🇻'}},
+  {id:47,group:'H',jornada:3,date:'26 Jun',time:'19:00',home:{n:'Uruguay',f:'🇺🇾'},away:{n:'España',f:'🇪🇸'}},
+  {id:48,group:'H',jornada:3,date:'26 Jun',time:'19:00',home:{n:'Cabo Verde',f:'🇨🇻'},away:{n:'Arabia Saudí',f:'🇸🇦'}},
+  {id:49,group:'I',jornada:1,date:'16 Jun',time:'14:00',home:{n:'Francia',f:'🇫🇷'},away:{n:'Senegal',f:'🇸🇳'}},
+  {id:50,group:'I',jornada:1,date:'16 Jun',time:'17:00',home:{n:'Irak',f:'🇮🇶'},away:{n:'Noruega',f:'🇳🇴'}},
+  {id:51,group:'I',jornada:2,date:'22 Jun',time:'16:00',home:{n:'Francia',f:'🇫🇷'},away:{n:'Irak',f:'🇮🇶'}},
+  {id:52,group:'I',jornada:2,date:'22 Jun',time:'19:00',home:{n:'Noruega',f:'🇳🇴'},away:{n:'Senegal',f:'🇸🇳'}},
+  {id:53,group:'I',jornada:3,date:'26 Jun',time:'14:00',home:{n:'Noruega',f:'🇳🇴'},away:{n:'Francia',f:'🇫🇷'}},
+  {id:54,group:'I',jornada:3,date:'26 Jun',time:'14:00',home:{n:'Senegal',f:'🇸🇳'},away:{n:'Irak',f:'🇮🇶'}},
+  {id:55,group:'J',jornada:1,date:'16 Jun',time:'20:00',home:{n:'Argentina',f:'🇦🇷'},away:{n:'Argelia',f:'🇩🇿'}},
+  {id:56,group:'J',jornada:1,date:'16 Jun',time:'23:00',home:{n:'Austria',f:'🇦🇹'},away:{n:'Jordania',f:'🇯🇴'}},
+  {id:57,group:'J',jornada:2,date:'22 Jun',time:'12:00',home:{n:'Argentina',f:'🇦🇷'},away:{n:'Austria',f:'🇦🇹'}},
+  {id:58,group:'J',jornada:2,date:'22 Jun',time:'22:00',home:{n:'Jordania',f:'🇯🇴'},away:{n:'Argelia',f:'🇩🇿'}},
+  {id:59,group:'J',jornada:3,date:'27 Jun',time:'21:00',home:{n:'Jordania',f:'🇯🇴'},away:{n:'Argentina',f:'🇦🇷'}},
+  {id:60,group:'J',jornada:3,date:'27 Jun',time:'21:00',home:{n:'Argelia',f:'🇩🇿'},away:{n:'Austria',f:'🇦🇹'}},
+  {id:61,group:'K',jornada:1,date:'17 Jun',time:'12:00',home:{n:'Portugal',f:'🇵🇹'},away:{n:'R.D. del Congo',f:'🇨🇩'}},
+  {id:62,group:'K',jornada:1,date:'17 Jun',time:'21:00',home:{n:'Uzbekistán',f:'🇺🇿'},away:{n:'Colombia',f:'🇨🇴'}},
+  {id:63,group:'K',jornada:2,date:'23 Jun',time:'12:00',home:{n:'Portugal',f:'🇵🇹'},away:{n:'Uzbekistán',f:'🇺🇿'}},
+  {id:64,group:'K',jornada:2,date:'23 Jun',time:'21:00',home:{n:'Colombia',f:'🇨🇴'},away:{n:'R.D. del Congo',f:'🇨🇩'}},
+  {id:65,group:'K',jornada:3,date:'27 Jun',time:'18:30',home:{n:'Colombia',f:'🇨🇴'},away:{n:'Portugal',f:'🇵🇹'}},
+  {id:66,group:'K',jornada:3,date:'27 Jun',time:'18:30',home:{n:'R.D. del Congo',f:'🇨🇩'},away:{n:'Uzbekistán',f:'🇺🇿'}},
+  {id:67,group:'L',jornada:1,date:'17 Jun',time:'15:00',home:{n:'Inglaterra',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},away:{n:'Croacia',f:'🇭🇷'}},
+  {id:68,group:'L',jornada:1,date:'17 Jun',time:'18:00',home:{n:'Ghana',f:'🇬🇭'},away:{n:'Panamá',f:'🇵🇦'}},
+  {id:69,group:'L',jornada:2,date:'23 Jun',time:'15:00',home:{n:'Inglaterra',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},away:{n:'Ghana',f:'🇬🇭'}},
+  {id:70,group:'L',jornada:2,date:'23 Jun',time:'18:00',home:{n:'Panamá',f:'🇵🇦'},away:{n:'Croacia',f:'🇭🇷'}},
+  {id:71,group:'L',jornada:3,date:'27 Jun',time:'16:00',home:{n:'Panamá',f:'🇵🇦'},away:{n:'Inglaterra',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'}},
+  {id:72,group:'L',jornada:3,date:'27 Jun',time:'16:00',home:{n:'Croacia',f:'🇭🇷'},away:{n:'Ghana',f:'🇬🇭'}},
+];
 
-const MATCHES=[];
-let mid=1;
-for(const[grp,data]of Object.entries(GROUPS)){
-  const t=data.teams,d=JORNADAS[grp];
-  [[0,1],[2,3],[0,2],[1,3],[0,3],[1,2]].forEach(([hi,ai],idx)=>{
-    const j=idx<2?1:idx<4?2:3;
-    const time=getMatchTime(t[hi].n,t[ai].n);
-    MATCHES.push({id:mid++,group:grp,jornada:j,date:d[j-1],time,home:{n:t[hi].n,f:t[hi].f},away:{n:t[ai].n,f:t[ai].f}});
-  });
-}
 const MEXICO_MATCHES = MATCHES.filter(m => m.home.n === "México" || m.away.n === "México");
 const BRACKET_ROUNDS=[
   {id:"r16",label:"16avos",pts:1,slots:32},
@@ -204,11 +177,13 @@ onAuthStateChanged(auth, async (user) => {
     const profileSnap = await getDoc(doc(db, "profiles", user.uid));
     if (profileSnap.exists()) {
       currentUserData = { uid: user.uid, ...profileSnap.data() };
+      window.currentUserData = currentUserData;
       showApp();
     }
   } else {
     currentUser = null;
     currentUserData = null;
+    window.currentUserData = null;
     showLogin();
   }
 });
@@ -243,6 +218,9 @@ async function showApp() {
   document.getElementById("app-screen").style.display = "block";
   document.getElementById("user-name-display").textContent = `${currentUserData.emoji} ${currentUserData.name}`;
   document.getElementById("admin-tab").style.display = currentUserData.isAdmin ? "inline-flex" : "none";
+  window.currentUserData = currentUserData;
+  if (window.renderSubmitBanner) window.renderSubmitBanner();
+  if (window.renderAdminButtons) window.renderAdminButtons();
 
   // Subscribe to real-time data
   subscribeToData();
@@ -267,6 +245,7 @@ function subscribeToData() {
     // Update currentUserData.submitted from realtime profile
     if (currentUser && allProfiles[currentUser.uid]) {
       currentUserData = { ...currentUserData, ...allProfiles[currentUser.uid] };
+      window.currentUserData = currentUserData;
     }
     renderScores(); renderStats(); renderStreaks();
     renderSubmitBanner();
@@ -422,6 +401,7 @@ async function submitPredictions() {
   await updateDoc(doc(db, "profiles", currentUser.uid), { submitted: true });
   // Update all local state immediately
   currentUserData.submitted = true;
+  window.currentUserData = currentUserData;
   if (allProfiles[currentUser.uid]) allProfiles[currentUser.uid].submitted = true;
   showToast("✅ ¡Quiniela enviada! Ahora puedes ver las demás Babies 👀");
   launchConfetti();
@@ -1438,6 +1418,7 @@ tr:hover td{background:rgba(255,255,255,.018);}
 // ── Render submit banner dynamically based on auth state ──
 function renderSubmitBanner() {
   const area = document.getElementById("submit-area"); if(!area) return;
+  const currentUserData = window.currentUserData;
   if (!currentUserData) return;
   if (currentUserData.submitted) {
     area.innerHTML = `<div class="submitted-banner"><span style="font-size:20px">✅</span> <strong style="color:var(--gold)">¡Quiniela guardada!</strong> <span style="color:var(--muted);font-size:13px">Tus predicciones están guardadas en la nube ☁️</span></div>`;
@@ -1448,6 +1429,7 @@ function renderSubmitBanner() {
 
 // ── Render admin-only buttons dynamically ──
 function renderAdminButtons() {
+  const currentUserData = window.currentUserData;
   const bracketAdminBtn = document.getElementById("bracket-admin-btn");
   if (bracketAdminBtn && currentUserData?.isAdmin) {
     bracketAdminBtn.innerHTML = `<button class="btn-primary" onclick="showBracketSetup()" style="margin-top:8px">⚙️ Configurar equipos del bracket</button>
@@ -1460,11 +1442,12 @@ function renderAdminButtons() {
 }
 
 // Patch showApp to also render banners
-const _origShowApp = window.showApp;
+window.renderSubmitBanner = renderSubmitBanner;
+window.renderAdminButtons = renderAdminButtons;
 document.addEventListener("DOMContentLoaded", () => {
   // poll for currentUserData then render banners
   const wait = setInterval(() => {
-    if (currentUserData) {
+    if (window.currentUserData) {
       clearInterval(wait);
       renderSubmitBanner();
       renderAdminButtons();
