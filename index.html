@@ -523,6 +523,7 @@ function renderMatches(isResults=false) {
               <button class="pick-btn ${res==="home"?"picked-home":""}" onclick="setRealMatch(${m.id},'home')">🏠</button>
               <button class="pick-btn ${res==="draw"?"picked-draw":""}" onclick="setRealMatch(${m.id},'draw')">🤝</button>
               <button class="pick-btn ${res==="away"?"picked-away":""}" onclick="setRealMatch(${m.id},'away')">✈️</button>
+              <button class="pick-btn" onclick="clearRealMatch(${m.id})" title="Borrar resultado">🗑️</button>
             </div>
           </div>
           <div class="match-team right"><span class="match-team-flag">${m.away.f}</span><span class="match-team-name">${m.away.n}</span></div>
@@ -603,6 +604,11 @@ window.setRealMatch = async function(id, res) {
   const key = `m${id}`;
   const newVal = realResults[key] === res ? null : res;
   await setDoc(doc(db, "config", "results"), { [key]: newVal }, { merge: true });
+};
+window.clearRealMatch = async function(id) {
+  const key = `m${id}`;
+  await setDoc(doc(db, "config", "results"), { [key]: null, [`mx_${id}_home`]: null, [`mx_${id}_away`]: null }, { merge: true });
+  showToast("🗑️ Resultado borrado");
 };
 window.setRealMxScore = async function(id, side, val) {
   await setDoc(doc(db, "config", "results"), { [`mx_${id}_${side}`]: parseInt(val) }, { merge: true });
