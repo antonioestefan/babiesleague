@@ -826,7 +826,7 @@ function renderScores() {
       <td>${gPts}</td><td>${mPts}</td>
       <td>${mxPts>0?`<span style="color:var(--gold)">${mxPts}🇲🇽</span>`:"–"}</td>
       <td>${bPts}</td>
-      <td>${cPts>0?"<span style='color:var(--gold)'>+10🏆</span>":pred?.champion?`<span style='font-size:11px;color:var(--muted)'>${allPredictions[profile.uid]?.champion||""}</span>`:"–"}</td>
+      <td>${cPts>0?"<span style='color:var(--gold)'>+10🏆</span>":allPredictions[profile.uid]?.champion?`<span style='font-size:11px;color:var(--muted)'>${allPredictions[profile.uid]?.champion||""}</span>`:"–"}</td>
       <td>${bonus>0?`<span style="color:var(--green)">+${bonus}⚡</span>`:"–"}</td>
       <td><span class="score-val">${total}</span></td>
     </tr>`;
