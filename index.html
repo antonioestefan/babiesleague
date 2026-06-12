@@ -302,7 +302,9 @@ async function fetchLiveScores() {
     if (data.matches && data.matches.length > 0) {
       liveMatches = {}; // reset
       data.matches.forEach(m => {
-        const key = `${m.homeTeam.name}_${m.awayTeam.name}`;
+        const homeN = normalizeTeamName(m.homeTeam.name);
+        const awayN = normalizeTeamName(m.awayTeam.name);
+        const key = `${homeN}_${awayN}`;
         liveMatches[key] = {
           homeScore: m.score.fullTime.home ?? m.score.halfTime.home ?? 0,
           awayScore: m.score.fullTime.away ?? m.score.halfTime.away ?? 0,
@@ -334,7 +336,19 @@ function showLiveBanner(count) {
   banner.id = "live-banner";
   banner.style.cssText = "position:fixed;top:56px;left:0;right:0;z-index:49;background:linear-gradient(90deg,rgba(255,64,129,.95),rgba(200,0,80,.95));color:#fff;text-align:center;padding:8px 16px;font-size:13px;font-weight:800;letter-spacing:.5px;animation:pulse 1.5s ease-in-out infinite;cursor:pointer;";
   banner.innerHTML = `🔴 ${count} PARTIDO${count>1?"S":""} EN VIVO AHORA · Toca para ver`;
-  banner.onclick = () => { showSection("partidos"); banner.remove(); };
+  banner.onclick = () => {
+    showSection("partidos");
+    filterMatches("ALL", document.querySelector(".filter-btn"));
+    setTimeout(() => {
+      const liveCard = document.querySelector(".match-card .live-tag")?.closest(".match-card");
+      if (liveCard) {
+        liveCard.scrollIntoView({ behavior: "smooth", block: "center" });
+        liveCard.style.outline = "2px solid var(--accent2)";
+        setTimeout(() => liveCard.style.outline = "", 3000);
+      }
+    }, 300);
+    banner.remove();
+  };
   document.body.appendChild(banner);
   setTimeout(() => banner?.remove(), 30000);
 }
