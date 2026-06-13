@@ -594,6 +594,54 @@ function getLiveData(m) {
   return liveMatches[key1] || null;
 }
 
+// ─── TODAY'S MATCHES (home panel) ────────────────────────────
+function getTodayDateStr() {
+  const now = new Date();
+  const fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Mexico_City', day: 'numeric', month: 'short' });
+  const parts = fmt.formatToParts(now);
+  let day, month;
+  parts.forEach(p => { if(p.type==='day') day=p.value; if(p.type==='month') month=p.value; });
+  return `${day} ${month}`;
+}
+function renderTodayMatches() {
+  const list = document.getElementById("today-matches-list"); if(!list) return;
+  const card = document.getElementById("today-matches-card");
+  const today = getTodayDateStr();
+  const todayMatches = MATCHES.filter(m => m.date === today);
+  if (!todayMatches.length) {
+    if(card) card.style.display = "none";
+    return;
+  }
+  if(card) card.style.display = "block";
+  list.innerHTML = "";
+  todayMatches.forEach(m => {
+    const live = getLiveData(m);
+    const item = document.createElement("div");
+    item.className = "match-card" + (isMexicoMatch(m) ? " mexico-match" : "") + (live ? " match-live" : "");
+    item.style.cursor = "pointer";
+    item.onclick = () => goToMatch(m);
+    item.innerHTML = `
+      <div class="match-date-badge">${m.time} CDMX · J${m.jornada} <span class="match-group-tag">GRUPO ${m.group}</span>${isMexicoMatch(m)?'<span class="mexico-tag">🇲🇽 EL TRI</span>':''}${live?`<span class="live-tag">🔴 EN VIVO ${live.min?live.min+"'":""}</span>`:''}</div>
+      ${live ? `<div class="live-score">${m.home.f} <span class="live-score-num">${live.homeScore}</span> – <span class="live-score-num">${live.awayScore}</span> ${m.away.f}</div>` : ""}
+      <div class="match-body">
+        <div class="match-team"><span class="match-team-flag">${m.home.f}</span><span class="match-team-name">${m.home.n}</span></div>
+        <div class="match-vs-zone"><div class="match-vs">${live?"":"VS"}</div></div>
+        <div class="match-team right"><span class="match-team-flag">${m.away.f}</span><span class="match-team-name">${m.away.n}</span></div>
+      </div>`;
+    list.appendChild(item);
+  });
+}
+function goToMatch(m) {
+  showSection("partidos");
+  currentGroupFilter = m.group;
+  setTimeout(() => {
+    document.querySelectorAll(".filter-btn").forEach(b => {
+      b.classList.toggle("active", b.textContent.trim() === m.group);
+    });
+    renderMatches();
+  }, 30);
+}
+
 window.pickMatch = function(id, res) {
   setMyPred(`matches.m${id}`, res); saveMyPredictions(); renderMatches(); checkStreaks();
 };
@@ -963,6 +1011,7 @@ window.changeEmoji = async function(uid) {
 let currentSection = "setup";
 function renderCurrentSection() { renderSection(currentSection); }
 function renderSection(id) {
+  if(id==="setup"){renderTodayMatches();}
   if(id==="grupos"){renderGroups();}
   if(id==="partidos"){renderMatches();updateMatchProgress();}
   if(id==="campeon"){renderChampion();}
@@ -1098,6 +1147,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .match-card{background:var(--card);border:1px solid var(--border);border-radius:15px;overflow:hidden;transition:border-color .2s;}
 .match-card:hover{border-color:rgba(255,215,0,.15);}
 .mexico-match{border-color:rgba(0,150,57,.3)!important;background:linear-gradient(135deg,rgba(0,150,57,.04),var(--card))!important;}
+.match-live{border-color:var(--accent2)!important;box-shadow:0 0 16px rgba(255,64,129,.15);}
 .match-date-badge{padding:7px 15px;background:linear-gradient(90deg,rgba(255,215,0,.07),transparent);border-bottom:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
 .match-group-tag{background:rgba(255,215,0,.12);color:var(--gold);padding:2px 7px;border-radius:4px;font-size:9px;font-weight:800;}
 .mexico-tag{background:rgba(0,150,57,.2);color:#00e676;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:800;border:1px solid rgba(0,150,57,.3);}
@@ -1248,6 +1298,11 @@ tr:hover td{background:rgba(255,255,255,.018);}
     <!-- SETUP -->
     <div class="section active" id="section-setup">
       <div id="submit-area"></div>
+      <div class="card" id="today-matches-card">
+        <div class="card-title">📅 Partidos de hoy</div>
+        <div class="card-sub">Toca un partido para ver más en la pestaña ⚽ Partidos</div>
+        <div class="matches-list" id="today-matches-list"></div>
+      </div>
       <div class="card" style="text-align:center;padding:32px">
         <div style="font-size:48px;margin-bottom:12px">🪩</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);margin-bottom:8px">¡Bienvenida a BabiesLeague!</div>
