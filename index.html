@@ -631,13 +631,31 @@ function renderTodayMatches() {
       scoreHTML = `<div class="live-score">${m.home.f} <span class="live-score-num">${live.homeScore}</span> – <span class="live-score-num">${live.awayScore}</span> ${m.away.f}</div>`;
     } else if (finished) {
       statusBadge = `<span class="finished-tag">✅ FINALIZADO</span>`;
-      if (isMexicoMatch(m) && mxH != null && mxA != null) {
+      if (mxH != null && mxA != null) {
         scoreHTML = `<div class="live-score final-score">${m.home.f} <span class="live-score-num">${mxH}</span> – <span class="live-score-num">${mxA}</span> ${m.away.f}</div>`;
       } else {
-        // Show result direction without exact score if no exact score stored
         const resLabel = res === "home" ? `${m.home.n} ganó` : res === "away" ? `${m.away.n} ganó` : "Empate";
         scoreHTML = `<div class="live-score final-score" style="font-size:14px">${resLabel}</div>`;
       }
+    }
+    // Babies' picks for this match
+    let picksHTML = "";
+    if (finished || live) {
+      Object.entries(allPredictions).forEach(([uid, pred]) => {
+        const profile = allProfiles[uid]; if (!profile) return;
+        const pk = pred?.matches?.[`m${m.id}`];
+        if (!pk) return;
+        const dc = pk==="home"?"home":pk==="draw"?"draw":"away";
+        const lb = pk==="home"?m.home.n:pk==="draw"?"Empate":m.away.n;
+        let correct = "";
+        if (finished) correct = (pk===res) ? "✅" : "❌";
+        let mxLabel = "";
+        if (isMexicoMatch(m)) {
+          const pH = pred?.matches?.[`mx_${m.id}_home`], pA = pred?.matches?.[`mx_${m.id}_away`];
+          if (pH != null && pA != null) mxLabel = ` (${pH}-${pA})`;
+        }
+        picksHTML += `<div class="match-pred-item"><div class="pred-dot ${dc}"></div>${profile.emoji} <strong>${profile.name}:</strong> ${lb}${mxLabel} ${correct}</div>`;
+      });
     }
     item.innerHTML = `
       <div class="match-date-badge">${m.time} CDMX · J${m.jornada} <span class="match-group-tag">GRUPO ${m.group}</span>${isMexicoMatch(m)?'<span class="mexico-tag">🇲🇽 EL TRI</span>':''}${statusBadge}</div>
@@ -646,7 +664,8 @@ function renderTodayMatches() {
         <div class="match-team"><span class="match-team-flag">${m.home.f}</span><span class="match-team-name">${m.home.n}</span></div>
         <div class="match-vs-zone"><div class="match-vs">${live||finished?"":"VS"}</div></div>
         <div class="match-team right"><span class="match-team-flag">${m.away.f}</span><span class="match-team-name">${m.away.n}</span></div>
-      </div>`;
+      </div>
+      ${picksHTML ? `<div class="match-predictions">${picksHTML}</div>` : ""}`;
     list.appendChild(item);
   });
 }
