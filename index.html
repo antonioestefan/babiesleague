@@ -616,16 +616,35 @@ function renderTodayMatches() {
   list.innerHTML = "";
   todayMatches.forEach(m => {
     const live = getLiveData(m);
+    const res = realResults[`m${m.id}`];
+    const mxH = realResults[`mx_${m.id}_home`];
+    const mxA = realResults[`mx_${m.id}_away`];
+    const finished = !live && res;
     const item = document.createElement("div");
-    item.className = "match-card" + (isMexicoMatch(m) ? " mexico-match" : "") + (live ? " match-live" : "");
+    item.className = "match-card" + (isMexicoMatch(m) ? " mexico-match" : "") + (live ? " match-live" : "") + (finished ? " match-finished" : "");
     item.style.cursor = "pointer";
     item.onclick = () => goToMatch(m);
+    let statusBadge = "";
+    let scoreHTML = "";
+    if (live) {
+      statusBadge = `<span class="live-tag">🔴 EN VIVO ${live.min?live.min+"'":""}</span>`;
+      scoreHTML = `<div class="live-score">${m.home.f} <span class="live-score-num">${live.homeScore}</span> – <span class="live-score-num">${live.awayScore}</span> ${m.away.f}</div>`;
+    } else if (finished) {
+      statusBadge = `<span class="finished-tag">✅ FINALIZADO</span>`;
+      if (isMexicoMatch(m) && mxH != null && mxA != null) {
+        scoreHTML = `<div class="live-score final-score">${m.home.f} <span class="live-score-num">${mxH}</span> – <span class="live-score-num">${mxA}</span> ${m.away.f}</div>`;
+      } else {
+        // Show result direction without exact score if no exact score stored
+        const resLabel = res === "home" ? `${m.home.n} ganó` : res === "away" ? `${m.away.n} ganó` : "Empate";
+        scoreHTML = `<div class="live-score final-score" style="font-size:14px">${resLabel}</div>`;
+      }
+    }
     item.innerHTML = `
-      <div class="match-date-badge">${m.time} CDMX · J${m.jornada} <span class="match-group-tag">GRUPO ${m.group}</span>${isMexicoMatch(m)?'<span class="mexico-tag">🇲🇽 EL TRI</span>':''}${live?`<span class="live-tag">🔴 EN VIVO ${live.min?live.min+"'":""}</span>`:''}</div>
-      ${live ? `<div class="live-score">${m.home.f} <span class="live-score-num">${live.homeScore}</span> – <span class="live-score-num">${live.awayScore}</span> ${m.away.f}</div>` : ""}
+      <div class="match-date-badge">${m.time} CDMX · J${m.jornada} <span class="match-group-tag">GRUPO ${m.group}</span>${isMexicoMatch(m)?'<span class="mexico-tag">🇲🇽 EL TRI</span>':''}${statusBadge}</div>
+      ${scoreHTML}
       <div class="match-body">
         <div class="match-team"><span class="match-team-flag">${m.home.f}</span><span class="match-team-name">${m.home.n}</span></div>
-        <div class="match-vs-zone"><div class="match-vs">${live?"":"VS"}</div></div>
+        <div class="match-vs-zone"><div class="match-vs">${live||finished?"":"VS"}</div></div>
         <div class="match-team right"><span class="match-team-flag">${m.away.f}</span><span class="match-team-name">${m.away.n}</span></div>
       </div>`;
     list.appendChild(item);
@@ -1154,6 +1173,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .live-tag{background:rgba(255,64,129,.15);color:var(--accent2);padding:2px 7px;border-radius:4px;font-size:9px;font-weight:800;animation:pulse 1s ease-in-out infinite;}
 .live-score{padding:6px 15px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--accent2);background:rgba(255,64,129,.05);border-bottom:1px solid var(--border);}
 .live-score-num{font-size:22px;color:var(--accent2);}
+.match-finished{opacity:.85;}
+.finished-tag{background:rgba(0,150,57,.15);color:#00e676;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:800;}
+.final-score{color:var(--gold)!important;background:rgba(255,215,0,.05)!important;}
+.final-score .live-score-num{color:var(--gold)!important;}
 .match-body{padding:11px 15px;display:flex;align-items:center;}
 .match-team{flex:1;display:flex;align-items:center;gap:8px;}
 .match-team.right{flex-direction:row-reverse;text-align:right;}
