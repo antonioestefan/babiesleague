@@ -913,6 +913,7 @@ function renderScores() {
       const p = pred?.groups?.[grp] || {};
       if(p["1"]&&rg["1"]&&p["1"]===rg["1"]) gPts+=3;
       if(p["2"]&&rg["2"]&&p["2"]===rg["2"]) gPts+=2;
+      if(p["3"]&&rg["3"]&&p["3"]===rg["3"]) gPts+=1;
     }
     // Matches
     MATCHES.forEach(m => {
@@ -1013,7 +1014,8 @@ function renderScoresDetail() {
       const flag = n => { let f="⚽"; Object.values(GROUPS).forEach(d=>d.teams.forEach(t=>{if(t.n===n)f=t.f;})); return f; };
       const pt1 = p1&&r1&&p1===r1?3:0;
       const pt2 = p2&&r2&&p2===r2?2:0;
-      groupPts += pt1 + pt2;
+      const r3 = rg["3"]; const pt3 = p3&&r3&&p3===r3?1:0;
+      groupPts += pt1 + pt2 + pt3;
       const row1 = `<tr style="border-bottom:1px solid rgba(255,255,255,.04);background:${pt1?"rgba(0,150,57,.06)":""}">
         <td style="padding:5px 4px;color:var(--muted);font-size:10px">Grupo ${grp} — 1°</td>
         <td style="text-align:center;padding:5px 4px">${p1?`${flag(p1)} ${p1}`:"–"}</td>
@@ -1026,11 +1028,11 @@ function renderScoresDetail() {
         <td style="text-align:center;padding:5px 4px">${r2?`${flag(r2)} ${r2}`:"?"}</td>
         <td style="text-align:center;padding:5px 4px">${pt2>0?`<span style="color:var(--gold);font-weight:800">+${pt2}</span>`:`<span style="color:var(--accent2)">0</span>`}</td>
       </tr>`;
-      const row3 = p3?`<tr style="border-bottom:1px solid rgba(255,255,255,.04)">
+      const row3 = p3?`<tr style="border-bottom:1px solid rgba(255,255,255,.04);background:${pt3?"rgba(0,150,57,.06)":""}">
         <td style="padding:5px 4px;color:var(--muted);font-size:10px">Grupo ${grp} — 3°</td>
         <td style="text-align:center;padding:5px 4px">${flag(p3)} ${p3}</td>
-        <td style="text-align:center;padding:5px 4px;color:var(--muted);font-size:10px">sin pts</td>
-        <td style="text-align:center;padding:5px 4px;color:var(--muted)">–</td>
+        <td style="text-align:center;padding:5px 4px">${r3?`${flag(r3)} ${r3}`:"?"}</td>
+        <td style="text-align:center;padding:5px 4px">${pt3>0?`<span style="color:var(--gold);font-weight:800">+1</span>`:`<span style="color:var(--accent2)">0</span>`}</td>
       </tr>`:"";
       groupRows += row1 + row2 + row3;
     });
@@ -1685,6 +1687,7 @@ tr:hover td{background:rgba(255,255,255,.018);}
         <div style="display:flex;flex-direction:column;gap:0;">
           <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)"><span style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:900;font-size:11px;padding:3px 9px;border-radius:8px;white-space:nowrap;flex-shrink:0;margin-top:2px">+3 pts</span><div style="font-size:13px;line-height:1.55"><strong style="color:var(--gold)">1° del grupo</strong> — 12 grupos × 3 = hasta 36 pts.</div></div>
           <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)"><span style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:900;font-size:11px;padding:3px 9px;border-radius:8px;white-space:nowrap;flex-shrink:0;margin-top:2px">+2 pts</span><div style="font-size:13px;line-height:1.55"><strong style="color:var(--gold)">2° del grupo</strong> — 12 grupos × 2 = hasta 24 pts.</div></div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)"><span style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:900;font-size:11px;padding:3px 9px;border-radius:8px;white-space:nowrap;flex-shrink:0;margin-top:2px">+1 pt</span><div style="font-size:13px;line-height:1.55"><strong style="color:var(--gold)">3° del grupo (mejor tercero)</strong> — Solo aplica a los 8 grupos con mejor tercero clasificado × 1 = hasta 8 pts.</div></div>
           <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)"><span style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:900;font-size:11px;padding:3px 9px;border-radius:8px;white-space:nowrap;flex-shrink:0;margin-top:2px">+1 pt</span><div style="font-size:13px;line-height:1.55"><strong style="color:var(--gold)">Resultado de partido</strong> — 48 partidos = hasta 48 pts.</div></div>
           <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)"><span style="background:linear-gradient(135deg,#00963c,#00e676);color:#000;font-weight:900;font-size:11px;padding:3px 9px;border-radius:8px;white-space:nowrap;flex-shrink:0;margin-top:2px">🇲🇽 Tri</span><div style="font-size:13px;line-height:1.55"><strong style="color:#00e676">Marcador exacto del Tri</strong> — <strong>+5 pts</strong> si aciertas el marcador exacto · <strong>+2 pts</strong> si solo aciertas los goles del Tri. Se aplica en los 3 partidos de México en grupos.</div></div>
           <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)"><span style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:900;font-size:11px;padding:3px 9px;border-radius:8px;white-space:nowrap;flex-shrink:0;margin-top:2px">+1→+10</span><div style="font-size:13px;line-height:1.55"><strong style="color:var(--gold)">Eliminatoria</strong> — 16avos +1 · 8vos +2 · Cuartos +4 · Semis +6 · 3er lugar +4 · Final +10 por acierto.</div></div>
