@@ -151,6 +151,7 @@ const BRACKET_ROUNDS=[
   {id:"f3", label:"3er Lugar",pts:4,slots:2},
   {id:"fn", label:"Final", pts:10,slots:2}
 ];
+const BRACKET_INITIAL_TEAMS = [{"n": "Alemania", "f": "🇩🇪"}, {"n": "Paraguay", "f": "🇵🇾"}, {"n": "Francia", "f": "🇫🇷"}, {"n": "Suecia", "f": "🇸🇪"}, {"n": "Países Bajos", "f": "🇳🇱"}, {"n": "Marruecos", "f": "🇲🇦"}, {"n": "Sudáfrica", "f": "🇿🇦"}, {"n": "Canadá", "f": "🇨🇦"}, {"n": "Portugal", "f": "🇵🇹"}, {"n": "Croacia", "f": "🇭🇷"}, {"n": "España", "f": "🇪🇸"}, {"n": "Australia", "f": "🇦🇺"}, {"n": "EE.UU.", "f": "🇺🇸"}, {"n": "Bosnia-Herzegovina", "f": "🇧🇦"}, {"n": "Bélgica", "f": "🇧🇪"}, {"n": "Senegal", "f": "🇸🇳"}, {"n": "Brasil", "f": "🇧🇷"}, {"n": "Japón", "f": "🇯🇵"}, {"n": "Costa de Marfil", "f": "🇨🇮"}, {"n": "Noruega", "f": "🇳🇴"}, {"n": "México", "f": "🇲🇽"}, {"n": "Ecuador", "f": "🇪🇨"}, {"n": "Inglaterra", "f": "🏴󠁧󠁢󠁥󠁮󠁧󠁿"}, {"n": "R.D. del Congo", "f": "🇨🇩"}, {"n": "Argentina", "f": "🇦🇷"}, {"n": "Cabo Verde", "f": "🇨🇻"}, {"n": "Austria", "f": "🇦🇹"}, {"n": "Egipto", "f": "🇪🇬"}, {"n": "Suiza", "f": "🇨🇭"}, {"n": "Argelia", "f": "🇩🇿"}, {"n": "Colombia", "f": "🇨🇴"}, {"n": "Ghana", "f": "🇬🇭"}];
 const EMOJIS=["🦁","🐯","🦊","🐺","🦅","🐲","🦈","🌪️","⚡","🔥","🌙","⭐","🎯","💎","🚀","🎪","🎠","🎡"];
 
 // ─── FIREBASE AUTH SETUP ─────────────────────────────────────
@@ -247,7 +248,7 @@ function subscribeToData() {
       currentUserData = { ...currentUserData, ...allProfiles[currentUser.uid] };
       window.currentUserData = currentUserData;
     }
-    renderScores(); renderStats(); renderStreaks();
+    renderScores(); renderScoresDetail(); renderStats(); renderStreaks();
     renderSubmitBanner();
     if (currentUserData?.isAdmin) renderAdminPanel();
   });
@@ -256,7 +257,7 @@ function subscribeToData() {
   const u2 = onSnapshot(collection(db, "predictions"), snap => {
     snap.forEach(d => { allPredictions[d.id] = d.data(); });
     renderCurrentSection();
-    renderScores(); renderStats(); renderStreaks();
+    renderScores(); renderScoresDetail(); renderStats(); renderStreaks();
   });
 
   // Subscribe to real results
@@ -264,7 +265,7 @@ function subscribeToData() {
     if (snap.exists()) {
       realResults = snap.data();
       renderCurrentSection();
-      renderScores(); renderStats(); renderStreaks();
+      renderScores(); renderScoresDetail(); renderStats(); renderStreaks();
     }
   });
 
@@ -390,6 +391,12 @@ async function loadBracket() {
     const d = snap.data();
     bracketTeams = d.teams || [];
     bracketReady = d.ready || false;
+  }
+  // If no bracket yet, pre-fill with real teams and mark as ready
+  if (!bracketReady || bracketTeams.length === 0) {
+    bracketTeams = BRACKET_INITIAL_TEAMS;
+    bracketReady = true;
+    await setDoc(doc(db, "config", "bracket"), { teams: bracketTeams, ready: true });
   }
 }
 
@@ -930,6 +937,90 @@ function renderScores() {
 }
 
 // ─── STATS ───────────────────────────────────────────────────
+function renderScoresDetail() {
+  const tabs = document.getElementById("scores-detail-tabs"); if(!tabs) return;
+  const body = document.getElementById("scores-detail-body"); if(!body) return;
+  const profiles = Object.values(allProfiles);
+  if (!profiles.length) { body.innerHTML = "<p style='color:var(--muted);font-size:13px'>Cargando...</p>"; return; }
+
+  // Build tabs
+  tabs.innerHTML = "";
+  const activeUid = tabs.dataset.activeUid || profiles[0]?.uid;
+  profiles.forEach(p => {
+    const btn = document.createElement("button");
+    btn.className = "filter-btn" + (p.uid === activeUid ? " active" : "");
+    btn.textContent = `${p.emoji} ${p.name}`;
+    btn.onclick = () => {
+      tabs.dataset.activeUid = p.uid;
+      renderScoresDetail();
+    };
+    tabs.appendChild(btn);
+  });
+
+  const profile = profiles.find(p => p.uid === activeUid) || profiles[0];
+  const pred = allPredictions[profile.uid] || {};
+  const resolved = MATCHES.filter(m => realResults[`m${m.id}`]);
+
+  if (!resolved.length) {
+    body.innerHTML = "<p style='color:var(--muted);font-size:13px;text-align:center;padding:16px'>Aún no hay partidos con resultado.</p>";
+    return;
+  }
+
+  let html = `<table style="width:100%;font-size:12px;border-collapse:collapse">
+    <thead><tr style="color:var(--muted);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border)">
+      <th style="text-align:left;padding:6px 4px">Partido</th>
+      <th style="padding:6px 4px">Tu pick</th>
+      <th style="padding:6px 4px">Resultado</th>
+      <th style="padding:6px 4px">Pts</th>
+    </tr></thead><tbody>`;
+
+  let totalPts = 0;
+  resolved.forEach(m => {
+    const pk = pred?.matches?.[`m${m.id}`];
+    const res = realResults[`m${m.id}`];
+    const correct = pk && pk === res;
+    const pts = correct ? 1 : 0;
+    totalPts += pts;
+
+    // Mexico exact score bonus
+    let mxPts = 0;
+    if (isMexicoMatch(m)) {
+      const rH = realResults[`mx_${m.id}_home`], rA = realResults[`mx_${m.id}_away`];
+      const pH = pred?.matches?.[`mx_${m.id}_home`], pA = pred?.matches?.[`mx_${m.id}_away`];
+      if (rH != null && rA != null && pH != null && pA != null) {
+        if (pH === rH && pA === rA) { mxPts = 5; }
+        else {
+          const mxIsHome = m.home.n === "México";
+          const rMx = mxIsHome ? rH : rA, pMx = mxIsHome ? pH : pA;
+          if (pMx === rMx) mxPts = 2;
+        }
+      }
+      totalPts += mxPts;
+    }
+
+    const pickLabel = pk === "home" ? `🏠 ${m.home.n}` : pk === "draw" ? "🤝 Empate" : pk === "away" ? `✈️ ${m.away.n}` : "–";
+    const resLabel = res === "home" ? `🏠 ${m.home.n}` : res === "draw" ? "🤝 Empate" : `✈️ ${m.away.n}`;
+    const ptsLabel = pts > 0 || mxPts > 0
+      ? `<span style="color:var(--gold);font-weight:800">+${pts + mxPts}</span>${mxPts>0?`<span style="font-size:9px;color:var(--green)"> (mx+${mxPts})</span>`:""}`
+      : pk ? `<span style="color:var(--accent2)">0</span>` : `<span style="color:var(--muted)">–</span>`;
+    const rowBg = correct ? "rgba(0,150,57,.06)" : mxPts>0 ? "rgba(255,215,0,.04)" : "";
+
+    html += `<tr style="border-bottom:1px solid rgba(255,255,255,.04);background:${rowBg}">
+      <td style="padding:7px 4px"><span style="font-size:13px">${m.home.f}${m.away.f}</span> <span style="color:var(--muted)">${m.home.n} vs ${m.away.n}</span></td>
+      <td style="text-align:center;padding:7px 4px">${pickLabel}</td>
+      <td style="text-align:center;padding:7px 4px">${resLabel}</td>
+      <td style="text-align:center;padding:7px 4px">${ptsLabel}</td>
+    </tr>`;
+  });
+
+  html += `</tbody><tfoot><tr style="border-top:2px solid var(--border)">
+    <td colspan="3" style="padding:8px 4px;font-weight:700;color:var(--muted);font-size:11px">TOTAL PARTIDOS</td>
+    <td style="text-align:center;padding:8px 4px;font-weight:900;color:var(--gold);font-size:16px">+${totalPts}</td>
+  </tr></tfoot></table>`;
+
+  body.innerHTML = html;
+}
+
 function renderStats() {
   const grid = document.getElementById("stats-grid"); if (!grid) return;
   const resolved = MATCHES.filter(m => realResults[`m${m.id}`]);
@@ -988,7 +1079,7 @@ function renderStreaks() {
 
 // ─── ADMIN PANEL ─────────────────────────────────────────────
 window.calculateScores = async function() {
-  renderScores(); renderStats(); renderStreaks();
+  renderScores(); renderScoresDetail(); renderStats(); renderStreaks();
   showToast("⚡ ¡Puntos calculados!"); launchConfetti();
   document.getElementById("results-section").style.display="none";
 };
@@ -1058,7 +1149,7 @@ function renderSection(id) {
   if(id==="partidos"){renderMatches();updateMatchProgress();}
   if(id==="campeon"){renderChampion();}
   if(id==="bracket"){if(bracketReady){document.getElementById("bracket-visual").style.display="block";renderBracketRoundTabs();renderBracketMatches();}else{document.getElementById("bracket-visual").style.display="none";}}
-  if(id==="puntos"){renderScores();}
+  if(id==="puntos"){renderScores(); renderScoresDetail();}
   if(id==="stats"){renderStats();renderStreaks();}
   if(id==="admin"){renderAdminPanel();}
 }
@@ -1481,6 +1572,12 @@ tr:hover td{background:rgba(255,255,255,.018);}
         <table><thead><tr><th>Baby</th><th>Racha actual</th><th>Rachas doradas ⚡</th><th>Rachas malditas 💀</th></tr></thead>
         <tbody id="streaks-body"></tbody></table>
         </div>
+      </div>
+
+      <div class="scores-card">
+        <div class="scores-header"><div class="scores-title">📋 Detalle por Baby</div></div>
+        <div id="scores-detail-tabs" style="display:flex;gap:8px;padding:12px 16px;flex-wrap:wrap;border-bottom:1px solid var(--border)"></div>
+        <div id="scores-detail-body" style="padding:12px 16px"></div>
       </div>
     </div>
 
