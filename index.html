@@ -968,21 +968,77 @@ function renderScoresDetail() {
     return;
   }
 
-  let html = `<table style="width:100%;font-size:12px;border-collapse:collapse">
-    <thead><tr style="color:var(--muted);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border)">
-      <th style="text-align:left;padding:6px 4px">Partido</th>
-      <th style="padding:6px 4px">Tu pick</th>
-      <th style="padding:6px 4px">Resultado</th>
-      <th style="padding:6px 4px">Pts</th>
-    </tr></thead><tbody>`;
+  let html = "";
 
-  let totalPts = 0;
-  resolved.forEach(m => {
+  // ── GRUPOS ──────────────────────────────────────────────────
+  const groupLetters = Object.keys(realResults).filter(k =>
+    typeof realResults[k] === "object" && !k.startsWith("m") && k !== "bracket" && k !== "champion" && !k.startsWith("mx_")
+  ).sort();
+
+  if (groupLetters.length) {
+    let groupPts = 0;
+    let groupRows = "";
+    groupLetters.forEach(grp => {
+      const rg = realResults[grp];
+      const p = pred?.groups?.[grp] || {};
+      const r1 = rg["1"], r2 = rg["2"];
+      const p1 = p["1"], p2 = p["2"], p3 = p["3"];
+      const flag = n => { let f="⚽"; Object.values(GROUPS).forEach(d=>d.teams.forEach(t=>{if(t.n===n)f=t.f;})); return f; };
+      const pt1 = p1&&r1&&p1===r1?3:0;
+      const pt2 = p2&&r2&&p2===r2?2:0;
+      groupPts += pt1 + pt2;
+      const row1 = `<tr style="border-bottom:1px solid rgba(255,255,255,.04);background:${pt1?"rgba(0,150,57,.06)":""}">
+        <td style="padding:5px 4px;color:var(--muted);font-size:10px">Grupo ${grp} — 1°</td>
+        <td style="text-align:center;padding:5px 4px">${p1?`${flag(p1)} ${p1}`:"–"}</td>
+        <td style="text-align:center;padding:5px 4px">${r1?`${flag(r1)} ${r1}`:"?"}</td>
+        <td style="text-align:center;padding:5px 4px">${pt1>0?`<span style="color:var(--gold);font-weight:800">+${pt1}</span>`:`<span style="color:var(--accent2)">0</span>`}</td>
+      </tr>`;
+      const row2 = `<tr style="border-bottom:1px solid rgba(255,255,255,.04);background:${pt2?"rgba(0,150,57,.06)":""}">
+        <td style="padding:5px 4px;color:var(--muted);font-size:10px">Grupo ${grp} — 2°</td>
+        <td style="text-align:center;padding:5px 4px">${p2?`${flag(p2)} ${p2}`:"–"}</td>
+        <td style="text-align:center;padding:5px 4px">${r2?`${flag(r2)} ${r2}`:"?"}</td>
+        <td style="text-align:center;padding:5px 4px">${pt2>0?`<span style="color:var(--gold);font-weight:800">+${pt2}</span>`:`<span style="color:var(--accent2)">0</span>`}</td>
+      </tr>`;
+      const row3 = p3?`<tr style="border-bottom:1px solid rgba(255,255,255,.04)">
+        <td style="padding:5px 4px;color:var(--muted);font-size:10px">Grupo ${grp} — 3°</td>
+        <td style="text-align:center;padding:5px 4px">${flag(p3)} ${p3}</td>
+        <td style="text-align:center;padding:5px 4px;color:var(--muted);font-size:10px">sin pts</td>
+        <td style="text-align:center;padding:5px 4px;color:var(--muted)">–</td>
+      </tr>`:"";
+      groupRows += row1 + row2 + row3;
+    });
+
+    html += `<div style="font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin:12px 0 6px">🏆 Posiciones de Grupos</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse">
+      <thead><tr style="color:var(--muted);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border)">
+        <th style="text-align:left;padding:6px 4px">Grupo</th>
+        <th style="padding:6px 4px">Tu pick</th>
+        <th style="padding:6px 4px">Real</th>
+        <th style="padding:6px 4px">Pts</th>
+      </tr></thead>
+      <tbody>${groupRows}</tbody>
+      <tfoot><tr style="border-top:2px solid var(--border)">
+        <td colspan="3" style="padding:8px 4px;font-weight:700;color:var(--muted);font-size:11px">TOTAL GRUPOS</td>
+        <td style="text-align:center;padding:8px 4px;font-weight:900;color:var(--gold);font-size:16px">+${groupPts}</td>
+      </tr></tfoot>
+    </table>`;
+  }
+
+  // ── PARTIDOS ─────────────────────────────────────────────────
+  const resolvedMatches = MATCHES.filter(m => realResults[`m${m.id}`]);
+  if (!resolvedMatches.length && !groupLetters.length) {
+    body.innerHTML = "<p style='color:var(--muted);font-size:13px;text-align:center;padding:16px'>Aún no hay resultados.</p>";
+    return;
+  }
+
+  let matchPts = 0;
+  let matchRows = "";
+  resolvedMatches.forEach(m => {
     const pk = pred?.matches?.[`m${m.id}`];
     const res = realResults[`m${m.id}`];
     const correct = pk && pk === res;
     const pts = correct ? 1 : 0;
-    totalPts += pts;
+    matchPts += pts;
 
     // Mexico exact score bonus
     let mxPts = 0;
@@ -997,7 +1053,7 @@ function renderScoresDetail() {
           if (pMx === rMx) mxPts = 2;
         }
       }
-      totalPts += mxPts;
+      matchPts += mxPts;
     }
 
     const pickLabel = pk === "home" ? `🏠 ${m.home.n}` : pk === "draw" ? "🤝 Empate" : pk === "away" ? `✈️ ${m.away.n}` : "–";
@@ -1007,7 +1063,7 @@ function renderScoresDetail() {
       : pk ? `<span style="color:var(--accent2)">0</span>` : `<span style="color:var(--muted)">–</span>`;
     const rowBg = correct ? "rgba(0,150,57,.06)" : mxPts>0 ? "rgba(255,215,0,.04)" : "";
 
-    html += `<tr style="border-bottom:1px solid rgba(255,255,255,.04);background:${rowBg}">
+    matchRows += `<tr style="border-bottom:1px solid rgba(255,255,255,.04);background:${rowBg}">
       <td style="padding:7px 4px"><span style="font-size:13px">${m.home.f}${m.away.f}</span> <span style="color:var(--muted)">${m.home.n} vs ${m.away.n}</span></td>
       <td style="text-align:center;padding:7px 4px">${pickLabel}</td>
       <td style="text-align:center;padding:7px 4px">${resLabel}</td>
@@ -1015,10 +1071,22 @@ function renderScoresDetail() {
     </tr>`;
   });
 
-  html += `</tbody><tfoot><tr style="border-top:2px solid var(--border)">
-    <td colspan="3" style="padding:8px 4px;font-weight:700;color:var(--muted);font-size:11px">TOTAL PARTIDOS</td>
-    <td style="text-align:center;padding:8px 4px;font-weight:900;color:var(--gold);font-size:16px">+${totalPts}</td>
-  </tr></tfoot></table>`;
+  if (resolvedMatches.length) {
+    html += `<div style="font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin:16px 0 6px">⚽ Partidos</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse">
+      <thead><tr style="color:var(--muted);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border)">
+        <th style="text-align:left;padding:6px 4px">Partido</th>
+        <th style="padding:6px 4px">Tu pick</th>
+        <th style="padding:6px 4px">Resultado</th>
+        <th style="padding:6px 4px">Pts</th>
+      </tr></thead>
+      <tbody>${matchRows}</tbody>
+      <tfoot><tr style="border-top:2px solid var(--border)">
+        <td colspan="3" style="padding:8px 4px;font-weight:700;color:var(--muted);font-size:11px">TOTAL PARTIDOS</td>
+        <td style="text-align:center;padding:8px 4px;font-weight:900;color:var(--gold);font-size:16px">+${matchPts}</td>
+      </tr></tfoot>
+    </table>`;
+  }
 
   body.innerHTML = html;
 }
