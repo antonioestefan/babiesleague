@@ -230,7 +230,7 @@ async function showApp() {
   loadBracket();
   // Fetch live scores
   fetchLiveScores();
-  setInterval(fetchLiveScores, 60000); // refresh every minute
+  setInterval(fetchLiveScores, 180000); // refresh every 3 min to avoid API rate limit
 }
 function showLogin() {
   document.getElementById("login-screen").style.display = "flex";
@@ -337,24 +337,28 @@ async function autoUpdateResults(matches) {
   matches.forEach(m => {
     const homeN = normalizeTeamName(m.homeTeam.name);
     const awayN = normalizeTeamName(m.awayTeam.name);
+    // Match BOTH teams simultaneously to avoid false positives
     const localMatch = MATCHES.find(lm =>
-      lm.home.n === homeN || lm.away.n === homeN ||
-      lm.home.n === awayN || lm.away.n === awayN
+      lm.home.n === homeN && lm.away.n === awayN
     );
     if (!localMatch) return;
     const hg = m.score.fullTime.home;
     const ag = m.score.fullTime.away;
     if (hg === null || ag === null) return;
     const result = hg > ag ? "home" : ag > hg ? "away" : "draw";
+    // Only update if result changed to avoid unnecessary writes
+    if (realResults[`m${localMatch.id}`] === result) return;
     updates[`m${localMatch.id}`] = result;
     // Mexico exact score
     if (localMatch.home.n === "México" || localMatch.away.n === "México") {
-      updates[`mx_${localMatch.id}_home`] = hg;
-      updates[`mx_${localMatch.id}_away`] = ag;
+      const mxIsHome = localMatch.home.n === "México";
+      updates[`mx_${localMatch.id}_home`] = mxIsHome ? hg : ag;
+      updates[`mx_${localMatch.id}_away`] = mxIsHome ? ag : hg;
     }
   });
   if (Object.keys(updates).length > 0) {
-    await setDoc(doc(db, "config", "results"), { ...realResults, ...updates }, { merge: true });
+    console.log("Auto-updating results:", updates);
+    await setDoc(doc(db, "config", "results"), updates, { merge: true });
   }
 }
 
