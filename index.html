@@ -151,7 +151,7 @@ const BRACKET_ROUNDS=[
   {id:"f3", label:"3er Lugar",pts:4,slots:2},
   {id:"fn", label:"Final", pts:10,slots:2}
 ];
-const BRACKET_INITIAL_TEAMS = [{"n": "Alemania", "f": "🇩🇪"}, {"n": "Paraguay", "f": "🇵🇾"}, {"n": "Francia", "f": "🇫🇷"}, {"n": "Suecia", "f": "🇸🇪"}, {"n": "Países Bajos", "f": "🇳🇱"}, {"n": "Marruecos", "f": "🇲🇦"}, {"n": "Sudáfrica", "f": "🇿🇦"}, {"n": "Canadá", "f": "🇨🇦"}, {"n": "Portugal", "f": "🇵🇹"}, {"n": "Croacia", "f": "🇭🇷"}, {"n": "España", "f": "🇪🇸"}, {"n": "Australia", "f": "🇦🇺"}, {"n": "EE.UU.", "f": "🇺🇸"}, {"n": "Bosnia-Herzegovina", "f": "🇧🇦"}, {"n": "Bélgica", "f": "🇧🇪"}, {"n": "Senegal", "f": "🇸🇳"}, {"n": "Brasil", "f": "🇧🇷"}, {"n": "Japón", "f": "🇯🇵"}, {"n": "Costa de Marfil", "f": "🇨🇮"}, {"n": "Noruega", "f": "🇳🇴"}, {"n": "México", "f": "🇲🇽"}, {"n": "Ecuador", "f": "🇪🇨"}, {"n": "Inglaterra", "f": "🏴󠁧󠁢󠁥󠁮󠁧󠁿"}, {"n": "R.D. del Congo", "f": "🇨🇩"}, {"n": "Argentina", "f": "🇦🇷"}, {"n": "Cabo Verde", "f": "🇨🇻"}, {"n": "Austria", "f": "🇦🇹"}, {"n": "Egipto", "f": "🇪🇬"}, {"n": "Suiza", "f": "🇨🇭"}, {"n": "Argelia", "f": "🇩🇿"}, {"n": "Colombia", "f": "🇨🇴"}, {"n": "Ghana", "f": "🇬🇭"}];
+const BRACKET_INITIAL_TEAMS = [{"n": "Alemania", "f": "🇩🇪"}, {"n": "Paraguay", "f": "🇵🇾"}, {"n": "Francia", "f": "🇫🇷"}, {"n": "Suecia", "f": "🇸🇪"}, {"n": "Países Bajos", "f": "🇳🇱"}, {"n": "Marruecos", "f": "🇲🇦"}, {"n": "Sudáfrica", "f": "🇿🇦"}, {"n": "Canadá", "f": "🇨🇦"}, {"n": "Portugal", "f": "🇵🇹"}, {"n": "Croacia", "f": "🇭🇷"}, {"n": "España", "f": "🇪🇸"}, {"n": "Austria", "f": "🇦🇹"}, {"n": "EE.UU.", "f": "🇺🇸"}, {"n": "Bosnia-Herzegovina", "f": "🇧🇦"}, {"n": "Bélgica", "f": "🇧🇪"}, {"n": "Senegal", "f": "🇸🇳"}, {"n": "Brasil", "f": "🇧🇷"}, {"n": "Japón", "f": "🇯🇵"}, {"n": "Costa de Marfil", "f": "🇨🇮"}, {"n": "Noruega", "f": "🇳🇴"}, {"n": "México", "f": "🇲🇽"}, {"n": "Ecuador", "f": "🇪🇨"}, {"n": "Inglaterra", "f": "🏴󠁧󠁢󠁥󠁮󠁧󠁿"}, {"n": "R.D. del Congo", "f": "🇨🇩"}, {"n": "Argentina", "f": "🇦🇷"}, {"n": "Cabo Verde", "f": "🇨🇻"}, {"n": "Australia", "f": "🇦🇺"}, {"n": "Egipto", "f": "🇪🇬"}, {"n": "Suiza", "f": "🇨🇭"}, {"n": "Argelia", "f": "🇩🇿"}, {"n": "Colombia", "f": "🇨🇴"}, {"n": "Ghana", "f": "🇬🇭"}];
 const EMOJIS=["🦁","🐯","🦊","🐺","🦅","🐲","🦈","🌪️","⚡","🔥","🌙","⭐","🎯","💎","🚀","🎪","🎠","🎡"];
 
 // ─── FIREBASE AUTH SETUP ─────────────────────────────────────
@@ -392,8 +392,10 @@ async function loadBracket() {
     bracketTeams = d.teams || [];
     bracketReady = d.ready || false;
   }
-  // If no bracket yet, pre-fill with real teams and mark as ready
-  if (!bracketReady || bracketTeams.length === 0) {
+  // Always sync bracket teams from BRACKET_INITIAL_TEAMS to ensure correct data
+  const storedNames = (bracketTeams || []).map(t => t?.n).join(',');
+  const expectedNames = BRACKET_INITIAL_TEAMS.map(t => t.n).join(',');
+  if (!bracketReady || storedNames !== expectedNames) {
     bracketTeams = BRACKET_INITIAL_TEAMS;
     bracketReady = true;
     await setDoc(doc(db, "config", "bracket"), { teams: bracketTeams, ready: true });
