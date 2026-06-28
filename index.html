@@ -381,9 +381,36 @@ function normalizeTeamName(apiName) {
   return map[apiName] || apiName;
 }
 
+const REAL_GROUP_STANDINGS = {
+  A: {"1":"México","2":"Sudáfrica","3":"Corea del Sur"},
+  B: {"1":"Suiza","2":"Canadá","3":"Bosnia-Herzegovina"},
+  C: {"1":"Brasil","2":"Marruecos","3":"Escocia"},
+  D: {"1":"EE.UU.","2":"Australia","3":"Paraguay"},
+  E: {"1":"Alemania","2":"Costa de Marfil","3":"Ecuador"},
+  F: {"1":"Países Bajos","2":"Japón","3":"Suecia"},
+  G: {"1":"Bélgica","2":"Egipto","3":"Irán"},
+  H: {"1":"España","2":"Cabo Verde","3":"Uruguay"},
+  I: {"1":"Francia","2":"Noruega","3":"Senegal"},
+  J: {"1":"Argentina","2":"Austria","3":"Argelia"},
+  K: {"1":"Colombia","2":"Portugal","3":"R.D. del Congo"},
+  L: {"1":"Inglaterra","2":"Croacia","3":"Ghana"},
+};
+
 async function loadRealResults() {
   const snap = await getDoc(doc(db, "config", "results"));
   if (snap.exists()) realResults = snap.data();
+  // Auto-seed group standings if any group is missing
+  const updates = {};
+  for (const [grp, standings] of Object.entries(REAL_GROUP_STANDINGS)) {
+    const existing = realResults[grp];
+    if (!existing || existing["1"] !== standings["1"] || existing["2"] !== standings["2"]) {
+      updates[grp] = standings;
+    }
+  }
+  if (Object.keys(updates).length > 0) {
+    await setDoc(doc(db, "config", "results"), updates, { merge: true });
+    Object.assign(realResults, updates);
+  }
 }
 async function loadBracket() {
   const snap = await getDoc(doc(db, "config", "bracket"));
